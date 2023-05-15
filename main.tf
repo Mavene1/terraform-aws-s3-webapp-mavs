@@ -16,13 +16,20 @@ resource "aws_s3_bucket_website_configuration" "bucket" {
   }
 }
 
-resource "aws_s3_bucket_acl" "bucket" {
+resource "aws_s3_bucket_ownership_controls" "s3_bucket_acl_ownership" {
   bucket = aws_s3_bucket.bucket.id
-
-  acl = "public-read"
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
 }
 
-resource "aws_s3_bucket_policy" "policy" {
+resource "aws_s3_bucket_acl" "bucket" {
+  bucket = aws_s3_bucket.bucket.id
+  depends_on = [aws_s3_bucket_ownership_controls.s3_bucket_acl_ownership]
+  acl = "private"
+}
+
+/* resource "aws_s3_bucket_policy" "policy" {
   bucket = aws_s3_bucket.bucket.id
   policy = <<EOF
 {
@@ -42,7 +49,7 @@ resource "aws_s3_bucket_policy" "policy" {
     ]
 }
 EOF
-}
+} */
 
 resource "aws_s3_object" "webapp" {
   acl          = "public-read"
